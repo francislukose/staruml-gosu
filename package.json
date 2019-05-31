@@ -1,0 +1,15 @@
+{
+    "name": "staruml.gosu",
+    "title": "Gosu",
+    "description": "Gosu code generation",
+    "keywords": ["gosu"],
+    "version": "0.0.1",
+    "author": {
+        "name": "Francis Lukose",
+        "email": "francislukose@gmail.com",
+        "url": "https://github.com/francislukose"
+    },
+    "engines": {
+        "staruml": ">=2.0.0"
+    }
+}
