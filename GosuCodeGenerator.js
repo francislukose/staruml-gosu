@@ -93,15 +93,22 @@ define(function (require, exports, module) {
 
             // Class
             } else {
-                fullPath = path + "/" + elem.name + ".gs";
-                codeWriter = new CodeGenUtils.CodeWriter(this.getIndentString(options));
-                this.writePackageDeclaration(codeWriter, elem, options);
-                codeWriter.writeLine();
-                codeWriter.writeLine("uses java.util.*;");
-                codeWriter.writeLine();
-                this.writeClass(codeWriter, elem, options);
-                file = FileSystem.getFileForPath(fullPath);
-                FileUtils.writeText(file, codeWriter.getData(), true).then(result.resolve, result.reject);
+					codeWriter = new CodeGenUtils.CodeWriter(this.getIndentString(options));
+					this.writePackageDeclaration(codeWriter, elem, options);
+					codeWriter.writeLine();
+					codeWriter.writeLine("uses java.util.*;");
+					codeWriter.writeLine();	
+					
+				if(elem.stereotype === "Enhancement"){
+					fullPath = path + "/" + elem.name + ".gsx";
+					this.writeEnhancement(codeWriter, elem, options);
+				}else{
+					fullPath = path + "/" + elem.name + ".gs";
+					this.writeClass(codeWriter, elem, options);
+				}
+				
+				file = FileSystem.getFileForPath(fullPath);
+				FileUtils.writeText(file, codeWriter.getData(), true).then(result.resolve, result.reject);
             }
 
         // Interface
@@ -326,7 +333,7 @@ define(function (require, exports, module) {
 			
             // type
             terms.push(this.getType(elem));
-			var _firstLetter = elem.name.charAt(0)
+			var _firstLetter = elem.name.charAt(0);
 			if(_firstLetter === _firstLetter.toUpperCase()){
 				terms.push("as");
 				if(elem.isReadOnly){
@@ -569,6 +576,96 @@ define(function (require, exports, module) {
         codeWriter.writeLine("}");
     };
 
+	/**
+     * Write Enhancement
+     * @param {StringWriter} codeWriter
+     * @param {type.Model} elem
+     * @param {Object} options
+     */
+    GosuCodeGenerator.prototype.writeEnhancement = function (codeWriter, elem, options) {
+        var i, len, terms = [];
+
+        // Doc
+        var doc = elem.documentation.trim();
+        if (ProjectManager.getProject().author && ProjectManager.getProject().author.length > 0) {
+            doc += "\n@author " + ProjectManager.getProject().author;
+        }
+        this.writeDoc(codeWriter, doc, options);
+
+        // Modifiers
+        var _modifiers = this.getModifiers(elem);
+        if (_modifiers.length > 0) {
+            terms.push(_modifiers.join(" "));
+        }
+
+        terms.push("enhancement");
+        terms.push(elem.name);
+
+        // Extends
+        var _extends = this.getSuperClasses(elem);
+        if (_extends.length > 0) {
+            terms.push(": " + _extends[0].name);
+        }
+
+        codeWriter.writeLine(terms.join(" ") + " {");
+        codeWriter.writeLine();
+        codeWriter.indent();
+
+        // Member Variables
+        // (from attributes)
+        for (i = 0, len = elem.attributes.length; i < len; i++) {
+            this.writeMemberVariable(codeWriter, elem.attributes[i], options);
+            codeWriter.writeLine();
+        }
+        // (from associations)
+        var associations = Repository.getRelationshipsOf(elem, function (rel) {
+            return (rel instanceof type.UMLAssociation);
+        });
+        for (i = 0, len = associations.length; i < len; i++) {
+            var asso = associations[i];
+            if (asso.end1.reference === elem && asso.end2.navigable === true) {
+                this.writeMemberVariable(codeWriter, asso.end2, options);
+                codeWriter.writeLine();
+            }
+            if (asso.end2.reference === elem && asso.end1.navigable === true) {
+                this.writeMemberVariable(codeWriter, asso.end1, options);
+                codeWriter.writeLine();
+            }
+        }
+
+        // Methods
+        for (i = 0, len = elem.operations.length; i < len; i++) {
+			var _methodModifiers = this.getModifiers(elem.operations[i]);
+			 if( _.contains(_methodModifiers, "abstract") === true ) {
+				 this.writeMethod(codeWriter, elem.operations[i], options, true, false);
+			 }else{
+				this.writeMethod(codeWriter, elem.operations[i], options, false, false);
+			 }
+            codeWriter.writeLine();
+        }
+
+        // Inner Definitions
+        for (i = 0, len = elem.ownedElements.length; i < len; i++) {
+            var def = elem.ownedElements[i];
+            if (def instanceof type.UMLClass) {
+                if (def.stereotype === "annotationType") {
+                    this.writeAnnotationType(codeWriter, def, options);
+                } else {
+                    this.writeClass(codeWriter, def, options);
+                }
+                codeWriter.writeLine();
+            } else if (def instanceof type.UMLInterface) {
+                this.writeInterface(codeWriter, def, options);
+                codeWriter.writeLine();
+            } else if (def instanceof type.UMLEnumeration) {
+                this.writeEnum(codeWriter, def, options);
+                codeWriter.writeLine();
+            }
+        }
+
+        codeWriter.outdent();
+        codeWriter.writeLine("}");
+    };
 
     /**
      * Write Interface
