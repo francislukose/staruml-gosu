@@ -26,6 +26,7 @@ Belows are the rules to convert from UML model elements to Gosu source codes.
 * Default constructor is generated.
 * All contained types (_UMLClass_, _UMLInterface_, _UMLEnumeration_) are generated as inner type definition.
 * Documentation property to JavaDoc comment.
+* Enhancement will be generated if a class is `Enhancement`
 
 ### UMLAttribute
 
@@ -52,6 +53,7 @@ Belows are the rules to convert from UML model elements to Gosu source codes.
 * _UMLParameter_ with `direction` = `return` to return type of method.
 * _UMLParameter_ with `isReadOnly` = `true` to `readonly` modifier will be added in Property accessor.
 * All member fields will be start with `_`.
+* Attribute name will not change if name is in all caps.
 * If field name starts with Upper case letter, Gosu accessor property will be generated.
 * Documentation property to JavaDoc comment.
 
