@@ -1,4 +1,4 @@
-# staruml-gosu-0.0.1
+# staruml-gosu
 Gosu Extension for StarUML 2
 ============================
 
@@ -26,7 +26,7 @@ Belows are the rules to convert from UML model elements to Gosu source codes.
 * Default constructor is generated.
 * All contained types (_UMLClass_, _UMLInterface_, _UMLEnumeration_) are generated as inner type definition.
 * Documentation property to JavaDoc comment.
-* Enhancement will be generated if a class is `Enhancement`
+* Enhancement will be generated if a class is steriotypes as `Enhancement`
 
 ### UMLAttribute
 
