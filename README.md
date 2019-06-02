@@ -2,7 +2,7 @@
 Gosu Extension for StarUML 2
 ============================
 
-This extension for StarUML(http://staruml.io) support to generate Gosu code from UML model. Install this extension from Extension Manager of StarUML. It is based on Java 1.14 specification.
+This extension for StarUML(http://staruml.io) support to generate Gosu code from UML model. Install this extension from Extension Manager of StarUML. It is based on Gosu 1.14 specification.
 
 Gosu Code Generation
 --------------------
