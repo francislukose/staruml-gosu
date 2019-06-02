@@ -313,12 +313,15 @@ define(function (require, exports, module) {
 			
 			terms.push("var");
 			var forcedFirstCharacter = "_";
-			if(elem.name.charAt(0) === "_"){
+			if ( (elem.name.charAt(0) === "_") || (elem.name === elem.name.toUpperCase()) ){
 				forcedFirstCharacter = "";
 			}
-			
 			// name
-            terms.push(forcedFirstCharacter + elem.name.charAt(0).toLowerCase() + elem.name.slice(1));
+			var _name = forcedFirstCharacter + elem.name.charAt(0).toLowerCase() + elem.name.slice(1);
+			if(elem.name === elem.name.toUpperCase()){
+				_name = elem.name;
+			}
+            terms.push(_name);
 			terms.push(":");
 			
             // type
